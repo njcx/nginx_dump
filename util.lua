@@ -154,6 +154,22 @@ function _M.get_req_header_json()
 end
 
 
+function _M.split_str_table(str,reps)
+    local sub_str_tab = {}
+    while (true) do
+        local pos = string.find(str, reps);
+        if (not pos) then
+            sub_str_tab[#sub_str_tab + 1] = str;
+            break;
+        end
+        local sub_str = string.sub(str, 1, pos - 1);
+        sub_str_tab[#sub_str_tab + 1] = sub_str;
+        str = string.sub(str, pos + 1, #str);
+    end
+    return sub_str_tab
+end
+
+
 function _M.get_cookie_json()
     local cookie = _M.get_cookie()
     local kv = {}
