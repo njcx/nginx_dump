@@ -2,7 +2,7 @@
     
     
     
-    - 该工具用于把Openresty 请求参数和响应 dump出来，用于旁路HTTP流量分析、风控、资产识别、API数据泄露分析等等
+    - 该工具用于把Openresty(Nginx+Lua) 请求参数和响应 dump出来，用于旁路HTTP流量分析、风控、资产识别、API数据泄露分析等等
 
     - 请在nginx.conf http 里面添加下面的片段，目录修改为实际目录
    
