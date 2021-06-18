@@ -4,4 +4,99 @@
 --- DateTime: 2021-06-18 15:14
 ---
 
+local  util = require("util")
+local  cjson = require "cjson.safe"
+local  config_file = require("config")
+local  client_ip = util.get_client_ip()
+local  user_agent = util.get_user_agent()
+local  local_time = util.get_localtime()
+local  host = util.get_host()  --无端口
+local  http_req_url = util.http_req_url()  --完整的地址有参数
+local  waf_host = util.get_hostname()
+local  req_data = util.get_all_args()
+local  req_method = util.get_method()
+local  header = util.get_req_header_json()
+local  cookie = util.get_cookie_json()
+
+
+local _M = {
+}
+
+
+local chunk, eof = ngx.arg[1], ngx.arg[2]
+local body = {}
+if ngx.ctx.buffered == nil then
+    ngx.ctx.buffered = {}
+end
+
+if chunk ~= "" and not ngx.is_subrequest then
+    table.insert(ngx.ctx.buffered, chunk)
+
+    ngx.arg[1] = nil
+end
+
+if eof then
+    body = table.concat(ngx.ctx.buffered)
+    ngx.ctx.buffered = nil
+
+    ngx.arg[1] = body
+
+    _M.waf_resp_log()
+end
+
+
+function _M.waf_resp_log()
+    local _, error = pcall(function()
+
+        local log_path = config_file.prod.response_log_dir
+
+        if env == 'dev' then
+            log_path = config_file.dev.response_log_dir
+        end
+        if env == 'demo' then
+            log_path = config_file.demo.response_log_dir
+        end
+
+        local client_ip = client_ip
+        local user_agent = user_agent
+        local local_time = local_time
+        local host = host
+        local url = http_req_url
+        local waf_host = waf_host
+        local req_data = req_data
+        local req_method = req_method
+        local header = header
+        local cookie = cookie
+        local body = body
+        local log_json_obj = {
+            ip = client_ip,
+            time = local_time,
+            host = host,
+            useragent = user_agent,
+            req_method =req_method,
+            url = url,
+            header = header,
+            cookie = cookie,
+            req_data=req_data,
+            body =body,
+            waf_host = waf_host
+        }
+        local log_line = cjson.encode(log_json_obj)
+        local log_name = string.format("%s/%s-resp-waf.log", log_path, os.date("%Y-%m-%d"))
+        local file = io.open(log_name, "a")
+        if file == nil then
+            return
+        end
+        file:write(string.format("%s\n", log_line))
+        file:flush()
+        file:close()
+    end
+    )
+    if error then
+        util.waf_error_log(error)
+    end
+end
+
+
+
 
