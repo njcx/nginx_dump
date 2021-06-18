@@ -13,11 +13,18 @@
 
 
     http {
-        lua_package_path          "/nginx/conf/nginx_dump/?.lua;;";
-        init_by_lua_file          /nginx/conf/nginx_dump/init.lua;
-        init_worker_by_lua_file   /nginx/conf/nginx_dump/init_worker.lua;
-        access_by_lua_file        /nginx/conf/nginx_dump/access.lua;
-        body_filter_by_lua_file   /nginx/conf/nginx_dump/body_filter.lua;      
+    
+        lua_package_path          "/usr/local/openresty/nginx/conf/nginx_dump/?.lua;;";
+        init_by_lua_file          /usr/local/openresty/nginx/conf/nginx_dump/init.lua;
+        init_worker_by_lua_file   /usr/local/openresty/nginx/conf/nginx_dump/init_worker.lua;
+        access_by_lua_file        /usr/local/openresty/nginx/conf/nginx_dump/access.lua;
+        body_filter_by_lua_file   /usr/local/openresty/nginx/conf/nginx_dump/body_filter.lua;      
+    
+        server {
+                listen       443 ssl;
+                server_name  localhost;
+        }
+    
     }
     
     
